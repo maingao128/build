@@ -15,7 +15,6 @@ console.log(colors.green('================开始构建================'));
 exec('npm run build', {
 	stdio: 'inherit'
 });
-console.log(colors.green('================构建结束，开始拷贝文件================'));
 
 if(!fs.existsSync(config.build) || !fs.existsSync(config.staticDist)) {
 	throw new Error(`构建结果${config.build}或者${config.staticDist}不存在`);
@@ -23,16 +22,16 @@ if(!fs.existsSync(config.build) || !fs.existsSync(config.staticDist)) {
 
 co(function *() {
 	yield * copy(config.build, config.staticDist);
-	console.log(colors.green('================拷贝文件完成================'));
 	updateGit();
 });
 
 function updateGit() {
-	console.log(colors.green('================开始同步git================'));
-	exec('git add . && git commit -m "update" && git pull', {
+	console.log(colors.green('================拷贝文件完成，开始同步git================'));
+	exec('git pull && git add . && git commit -m "update" && git push', {
 		cwd: config.staticDist,
 		stdio: 'inherit'
 	})
+
 	console.log(colors.green('================同步git完成，可以进行发布================'));
 }
 
@@ -40,13 +39,18 @@ function* copy(src, dist) {
 	const paths = yield readDirSync(src);
 	const l = paths.length;
 	for(let i = 0; i < l; i++) {
-		const path = paths[i];
-		if(path.indexOf('.') === 0) {
+		const currPath = paths[i];
+		if(currPath.indexOf('.') === 0) {
 			continue
 		}
-		const _src = src + '/' + path;
-		const _dist = dist + '/' + path;
+		const _src = src + '/' + currPath;
+		const _dist = dist + '/' + currPath;
 		const stat = fs.statSync(_src);
+
+		if(!fs.existsSync(path.dirname(_dist))) {
+			fs.mkdirSync(path.dirname(_dist));
+		}
+
 		if(stat.isFile()) {
 			fs.writeFileSync(_dist, fs.readFileSync(_src));
 		} else if(stat.isDirectory()) {
