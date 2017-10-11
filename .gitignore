@@ -9,3 +9,5 @@ npm-debug.log*
 *.njsproj
 *.sln
 *.zip
+*.pem
+*.csr
