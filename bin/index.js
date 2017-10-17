@@ -11,7 +11,13 @@ program
 	.action(pub)
 
 program
-	.command('dev')
+	.command('pro')
+	.description('static resources are from local, data from online')
+	.action(agent)
+
+
+program
+	.command('pre')
 	.description('static resources are from local, data from online')
 	.action(agent)
 
